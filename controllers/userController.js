@@ -1,4 +1,4 @@
-import bcrypt from 'bcryptjs';
+import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { query } from '../database/db.js';
 
@@ -9,6 +9,12 @@ export const registerUser = async (req, res) => {
 
     if (!email || !password) {
         return res.status(400).json({ message: 'Please provide email and password.' });
+    }
+
+    if (!email.endsWith('@intranet-shop.com')) {
+        return res.status(400).json({
+            message: 'Email must end with "@intranet-shop.com".',
+        });
     }
 
     if (!/^(?=.*[A-Z])(?=.*\d)(?=.*[!@$%?]).{8,}$/.test(password)) {
