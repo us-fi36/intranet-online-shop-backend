@@ -39,6 +39,39 @@ export const createOrder = async (req, res) => {
     }
 };
 
+export const deleteFromCart = async (req, res) => {
+    const userId = req.userId; // Extract userId from middleware
+    const { productId } = req.params;
+
+    if (!productId) {
+        return res.status(400).json({ message: 'Product ID is required.' });
+    }
+
+    try {
+        // Check if the product exists in the user's cart
+        const [cartItem] = await query(
+            'SELECT * FROM order_items WHERE user_id = ? AND product_id = ?',
+            [userId, productId]
+        );
+
+        if (!cartItem) {
+            return res.status(404).json({ message: 'Product not found in cart.' });
+        }
+
+        // Delete the product from the cart
+        await query(
+            'DELETE FROM order_items WHERE user_id = ? AND product_id = ?',
+            [userId, productId]
+        );
+
+        res.status(200).json({ message: 'Product removed from cart.' });
+    } catch (err) {
+        console.error('Error removing product from cart:', err.message);
+        res.status(500).json({ message: 'Failed to remove product from cart.', error: err.message });
+    }
+};
+
+
 export const getOrders = async (req, res) => {
     const userId = req.userId;
 
